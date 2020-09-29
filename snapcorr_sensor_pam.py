@@ -1,0 +1,1 @@
+/home/jackh/mar2018test/snapcorr_sensor_pam.py
