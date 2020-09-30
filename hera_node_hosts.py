@@ -2,16 +2,16 @@
 from __future__ import print_function
 import argparse
 import os
-import sys
-import six
 import time
+import json
+import redis
 
 ap = argparse.ArgumentParser()
 ap.add_argument('snap0', help="SNAP serial number. E.g. 42")
 ap.add_argument('snap1', help="SNAP serial number. E.g. 43")
 ap.add_argument('snap2', help="SNAP serial number. E.g. 54")
 ap.add_argument('snap3', help="SNAP serial number. E.g. 7")
-ap.add_argument('-n', '--node_num', help="Node number. E.g. 10")
+ap.add_argument('node_num', help="Node number. E.g. 10")
 ap.add_argument('--hosts_file', help="__Shouldn't need to change__  Name of hosts file.",
                 default="/etc/hosts")
 ap.add_argument('--snap_rev', help="__Shouldn't need to change__  Rev letter of SNAP (csv-list).  "
@@ -23,8 +23,6 @@ snap_rev = args.snap_rev.upper().split(",")
 if len(snap_rev) == 1:
     snap_rev = snap_rev * 4
 
-hard-code MAC etc and populate hosts/ethers
-
 snaps = {}
 for i in range(4):
     snpi = 'heraNode{}Snap{}'.format(args.node_num, i)
@@ -32,18 +30,27 @@ for i in range(4):
 with open('CurrentNode.txt', 'w') as fp:
     fp.write(args.node_num)
 
-print("This will rewrite {} with".format(args.hosts_file))
+print("Rewriting {} with".format(args.hosts_file))
 for loc, snr in snaps.items():
     print("\t{} --> {}".format(snr, loc))
-yn = six.moves.input("Do you want to proceed (y/n):  ")
-if yn[0].lower() != 'y':
-    print("Quitting without change.")
-    sys.exit()
 backup_host_file = ('{}.backup_etc_hosts{}'
                     .format(os.path.basename(args.hosts_file), int(time.time())))
 print("Backing up to {}".format(backup_host_file))
 os.system('cp {} {}'.format(args.hosts_file, backup_host_file))
 update_counter = 0
+
+with open('rfimacip.json', 'r') as fp:
+    macip = json.load(fp)
+for arduino, info in macip.items():
+    if info['node'] == args.node:
+        print("Using arduino {}".format(arduino))
+        break
+
+connection_pool = redis.ConnectionPool(host='redishost', decode_responses=True)
+r = redis.StrictRedis(connection_pool=connection_pool, charset='utf-8')
+rkey = 'status:node:{}'.format(args.node)
+r.hset(rkey, 'ip', macip[arduino]['ip'])
+r.hset(rkey, 'node_ID', args.node)
 
 with open(backup_host_file, 'r') as fpin:
     with open(args.hosts_file, 'w') as fpout:

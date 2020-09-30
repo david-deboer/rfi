@@ -71,7 +71,7 @@ def retrieve(hash, rsession=None, show=False):
     hred = rsession.hgetall(hash)  # could step through with hkeys then hget
     ret = {}
     for k, v in hred.items():
-	try:
+        try:
             ret[k] = json.loads(v)
         except ValueError:
             ret[k] = v
