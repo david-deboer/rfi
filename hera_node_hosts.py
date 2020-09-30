@@ -12,14 +12,18 @@ ap.add_argument('snap1', help="SNAP serial number. E.g. 43")
 ap.add_argument('snap2', help="SNAP serial number. E.g. 54")
 ap.add_argument('snap3', help="SNAP serial number. E.g. 7")
 ap.add_argument('-n', '--node_num', help="Node number. E.g. 10")
-ap.add_argument('--hosts_file', help="__Shouldn't need to change__  Name of hosts file.", default="/etc/hosts")
+ap.add_argument('--hosts_file', help="__Shouldn't need to change__  Name of hosts file.",
+                default="/etc/hosts")
 ap.add_argument('--snap_rev', help="__Shouldn't need to change__  Rev letter of SNAP (csv-list).  "
                 "If one supplied, it applies to all.", default='C')
-ap.add_argument('--dont_reset_dnsmasq', dest='reset_dnsmasq', help="Don't reset the dnsmasq", action='store_false')
+ap.add_argument('--dont_reset_dnsmasq', dest='reset_dnsmasq', help="Don't reset the dnsmasq",
+                action='store_false')
 args = ap.parse_args()
 snap_rev = args.snap_rev.upper().split(",")
 if len(snap_rev) == 1:
     snap_rev = snap_rev * 4
+
+hard-code MAC etc and populate hosts/ethers
 
 snaps = {}
 for i in range(4):
@@ -35,7 +39,8 @@ yn = six.moves.input("Do you want to proceed (y/n):  ")
 if yn[0].lower() != 'y':
     print("Quitting without change.")
     sys.exit()
-backup_host_file = '{}.backup_etc_hosts{}'.format(os.path.basename(args.hosts_file), int(time.time()))
+backup_host_file = ('{}.backup_etc_hosts{}'
+                    .format(os.path.basename(args.hosts_file), int(time.time())))
 print("Backing up to {}".format(backup_host_file))
 os.system('cp {} {}'.format(args.hosts_file, backup_host_file))
 update_counter = 0
