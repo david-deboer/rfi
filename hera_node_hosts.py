@@ -23,12 +23,13 @@ snap_rev = args.snap_rev.upper().split(",")
 if len(snap_rev) == 1:
     snap_rev = snap_rev * 4
 
+this_node_num = int(args.node_num)
 snaps = {}
 for i in range(4):
-    snpi = 'heraNode{}Snap{}'.format(args.node_num, i)
+    snpi = 'heraNode{}Snap{}'.format(this_node_num, i)
     snaps[snpi] = 'SNP{}{:06d}'.format(snap_rev[i], int(getattr(args, 'snap{}'.format(i))))
 with open('CurrentNode.txt', 'w') as fp:
-    fp.write(args.node_num)
+    fp.write(this_node_num)
 
 print("Rewriting {} with".format(args.hosts_file))
 for loc, snr in snaps.items():
@@ -42,15 +43,15 @@ update_counter = 0
 with open('rfimacip.json', 'r') as fp:
     macip = json.load(fp)
 for arduino, info in macip.items():
-    if info['node'] == args.node_num:
+    if info['node'] == this_node_num:
         print("Using arduino {}".format(arduino))
         break
 
 connection_pool = redis.ConnectionPool(host='redishost', decode_responses=True)
 r = redis.StrictRedis(connection_pool=connection_pool, charset='utf-8')
-rkey = 'status:node:{}'.format(args.node_num)
+rkey = 'status:node:{}'.format(this_node_num)
 r.hset(rkey, 'ip', macip[arduino]['ip'])
-r.hset(rkey, 'node_ID', args.node_num)
+r.hset(rkey, 'node_ID', this_node_num)
 
 with open(backup_host_file, 'r') as fpin:
     with open(args.hosts_file, 'w') as fpout:
