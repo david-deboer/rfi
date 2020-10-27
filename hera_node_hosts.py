@@ -48,9 +48,10 @@ for arduino, info in macip.items():
 
 connection_pool = redis.ConnectionPool(host='redishost', decode_responses=True)
 r = redis.StrictRedis(connection_pool=connection_pool, charset='utf-8')
-rkey = 'status:node:{}'.format(args.node_num)
+rkey = 'status:node:{}'.format(int(args.node_num))
 r.hset(rkey, 'ip', macip[arduino]['ip'])
-r.hset(rkey, 'node_ID', args.node_num)
+r.hset(rkey, 'mac', macip[arduino]['mac'])
+r.hset(rkey, 'node_ID', int(args.node_num))
 
 with open(backup_host_file, 'r') as fpin:
     with open(args.hosts_file, 'w') as fpout:
