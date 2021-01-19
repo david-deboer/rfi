@@ -29,7 +29,7 @@ for i in range(4):
     snpi = 'heraNode{}Snap{}'.format(this_node_num, i)
     snaps[snpi] = 'SNP{}{:06d}'.format(snap_rev[i], int(getattr(args, 'snap{}'.format(i))))
 with open('CurrentNode.txt', 'w') as fp:
-    fp.write(this_node_num)
+    fp.write(str(this_node_num))
 
 print("Rewriting {} with".format(args.hosts_file))
 for loc, snr in snaps.items():
@@ -53,6 +53,7 @@ rkey = 'status:node:{}'.format(int(args.node_num))
 r.hset(rkey, 'ip', macip[arduino]['ip'])
 r.hset(rkey, 'mac', macip[arduino]['mac'])
 r.hset(rkey, 'node_ID', int(args.node_num))
+r.hset(rkey, 'timestamp', 1)
 
 with open(backup_host_file, 'r') as fpin:
     with open(args.hosts_file, 'w') as fpout:
