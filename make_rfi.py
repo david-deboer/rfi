@@ -12,4 +12,4 @@ pa_cmd = './poll_all_i2c.sh'
 pa_arg = 'heraNode{}Snap{{0..3}}'.format(current_node)
 print("Making noise with {}".format(pa_arg))
 #os.system(poll_all)
-subprocess.run([pa_cmd, pa_arg], shell=True)
+subprocess.call([pa_cmd, pa_arg], shell=True)
